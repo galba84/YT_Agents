@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 from crewai import Agent, Task, Crew
 from crewai_tools import SerperDevTool
 from langchain_openai import ChatOpenAI
-# from langchain_community.llms import Ollama
 import litellm
 litellm._turn_on_debug()
 load_dotenv()
@@ -20,14 +19,9 @@ print("OPENAI_API_BASE:", os.getenv("OPENAI_API_BASE"))
 
 search_tool = SerperDevTool()
 
-def create_research_agent(use_gpt = True):
-    
+def create_research_agent():
+    llm = ChatOpenAI(model="gpt-4o")
 
-    if use_gpt:
-        llm = ChatOpenAI(model="gpt-4o")
-    else:
-        # llm = OllamaLLM(model="llama3.2:latest", base_url="http://localhost:11434")
-        
     return Agent(
         role="Research Specialist",
         goal="Conduct through research on given topics",
@@ -45,9 +39,9 @@ def create_research_task(agent, topic):
         expected_output="up to five pro and cons"
     )
     
-def run_research(topic, use_gpt=True):
+def run_research(topic):
     print(f"Starting research on: {topic}")
-    agent = create_research_agent(use_gpt)
+    agent = create_research_agent()
     print("Agent created.")
     task = create_research_task(agent, topic)
     print("Task created.")
@@ -56,15 +50,13 @@ def run_research(topic, use_gpt=True):
 
     result = crew.kickoff()
 
-    print("Research Result:", result)
-    
+
     return result
 
 if  __name__ == "__main__":
     print("Welcome to research Agent!")
-    use_gpt = input("Do you want to use gpt yes/no? ").lower() == 'yes'
     topic = input("Enter the research topic: ")
     
-    result = run_research(topic, use_gpt)
+    result = run_research(topic)
     print("\nresearch result:")
     print(result)
